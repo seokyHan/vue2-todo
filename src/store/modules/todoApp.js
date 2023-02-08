@@ -12,6 +12,21 @@ const storage = {
   }
 };
 
+const findPrimaryKey = payload => {
+  const keys = Object.keys(localStorage);
+
+  const filteredKeys = keys.filter(
+    key => key !== "loglevel:webpack-dev-server"
+  );
+
+  const findKey = filteredKeys.find(key => {
+    const { item } = JSON.parse(localStorage.getItem(key)) || {};
+    return item === payload.todoItem.item;
+  });
+
+  return findKey;
+};
+
 const state = {
   todoItems: storage.fetch()
 };
@@ -33,29 +48,19 @@ const mutations = {
   },
 
   removeOneItem(state, payload) {
-    const keys = Object.keys(localStorage);
+    const primaryKey = findPrimaryKey(payload);
 
-    const filteredKeys = keys.filter(
-      key => key !== "loglevel:webpack-dev-server"
-    );
-    const keyToRemove = filteredKeys.find(key => {
-      console.log(localStorage.getItem(key));
-      const { item } = JSON.parse(localStorage.getItem(key)) || {};
-      return item === payload.todoItem.item;
-    });
-
-    keyToRemove && localStorage.removeItem(keyToRemove);
+    localStorage.removeItem(primaryKey);
     state.todoItems.splice(payload.index, 1);
   },
 
   toggleOneItem(state, payload) {
+    const primaryKey = findPrimaryKey(payload);
     state.todoItems[payload.index].completed = !state.todoItems[payload.index]
       .completed;
-    localStorage.removeItem(payload.todoItem.item);
-    localStorage.setItem(
-      payload.todoItem.item,
-      JSON.stringify(payload.todoItem)
-    );
+
+    localStorage.removeItem(primaryKey);
+    localStorage.setItem(primaryKey, JSON.stringify(payload.todoItem));
   },
 
   clearAllItem(state) {

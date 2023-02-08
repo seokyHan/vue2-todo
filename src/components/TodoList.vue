@@ -27,6 +27,11 @@
 import { mapGetters, mapMutations } from "vuex";
 
 export default {
+  data() {
+    return {
+      isEditing: false
+    };
+  },
   computed: {
     ...mapGetters(["storedTodoItems"])
   },
